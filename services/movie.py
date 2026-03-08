@@ -5,6 +5,7 @@ from db.models import Movie
 
 from django.db import transaction
 
+
 def get_movies(
     genres_ids: list[int] = None,
     actors_ids: list[int] = None,
@@ -34,7 +35,6 @@ def create_movie(
     genres_ids: list = None,
     actors_ids: list = None,
 ) -> Movie:
-    # transaction ensures rollback if association setting fails
     with transaction.atomic():
         movie = Movie.objects.create(
             title=movie_title,

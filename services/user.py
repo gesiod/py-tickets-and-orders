@@ -11,7 +11,6 @@ def create_user(
     first_name: Optional[str] = None,
     last_name: Optional[str] = None,
 ) -> User:
-    # use the manager method to handle password hashing
     user = User.objects.create_user(username=username, password=password)
     if email:
         user.email = email

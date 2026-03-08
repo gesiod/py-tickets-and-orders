@@ -3,6 +3,7 @@ from typing import List, Dict, Optional
 
 from django.db import transaction
 from django.contrib.auth import get_user_model
+from django.db.models import QuerySet
 
 from db.models import Order, Ticket
 
@@ -18,12 +19,11 @@ def create_order(
     with transaction.atomic():
         user = User.objects.get(username=username)
         if date:
-            # parse date string
             created_at = datetime.fromisoformat(date)
             order = Order.objects.create(user=user, created_at=created_at)
         else:
             order = Order.objects.create(user=user)
-        # create tickets
+
         for ticket_data in tickets:
             Ticket.objects.create(
                 movie_session_id=ticket_data["movie_session"],
@@ -34,7 +34,7 @@ def create_order(
     return order
 
 
-def get_orders(username: Optional[str] = None):
+def get_orders(username: Optional[str] = None) -> QuerySet:
     queryset = Order.objects.select_related("user").all()
     if username:
         queryset = queryset.filter(user__username=username)
