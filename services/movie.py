@@ -10,7 +10,7 @@ def get_movies(
     genres_ids: list[int] = None,
     actors_ids: list[int] = None,
     title: str = None,
-) -> QuerySet:
+) -> QuerySet[Movie]:
     queryset = Movie.objects.all()
 
     if genres_ids:
@@ -29,6 +29,7 @@ def get_movie_by_id(movie_id: int) -> Movie:
     return Movie.objects.get(id=movie_id)
 
 
+@transaction.atomic
 def create_movie(
     movie_title: str,
     movie_description: str,
@@ -44,4 +45,4 @@ def create_movie(
             movie.genres.set(genres_ids)
         if actors_ids:
             movie.actors.set(actors_ids)
-    return movie
+        return movie

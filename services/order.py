@@ -10,31 +10,32 @@ from db.models import Order, Ticket
 User = get_user_model()
 
 
+@transaction.atomic
 def create_order(
     tickets: List[Dict],
     username: str,
     date: Optional[str] = None,
 ) -> Order:
-    # ensure atomicity: either all objects created or none
-    with transaction.atomic():
-        user = User.objects.get(username=username)
-        if date:
-            created_at = datetime.fromisoformat(date)
-            order = Order.objects.create(user=user, created_at=created_at)
-        else:
-            order = Order.objects.create(user=user)
+    # create order first; auto_now_add will set current timestamp
+    user = User.objects.get(username=username)
+    order = Order.objects.create(user=user)
 
-        for ticket_data in tickets:
-            Ticket.objects.create(
-                movie_session_id=ticket_data["movie_session"],
-                order=order,
-                row=ticket_data["row"],
-                seat=ticket_data["seat"],
-            )
+    if date:
+        created_at = datetime.fromisoformat(date)
+        Order.objects.filter(pk=order.pk).update(created_at=created_at)
+        order.refresh_from_db(fields=["created_at"])
+
+    for ticket_data in tickets:
+        Ticket.objects.create(
+            movie_session_id=ticket_data["movie_session"],
+            order=order,
+            row=ticket_data["row"],
+            seat=ticket_data["seat"],
+        )
     return order
 
 
-def get_orders(username: Optional[str] = None) -> QuerySet:
+def get_orders(username: Optional[str] = None) -> QuerySet[Order]:
     queryset = Order.objects.select_related("user").all()
     if username:
         queryset = queryset.filter(user__username=username)

@@ -1,5 +1,3 @@
-from datetime import datetime
-
 from django.db import models
 from django.contrib.auth.models import AbstractUser
 
@@ -11,7 +9,7 @@ class Genre(models.Model):
         return self.name
 
 
-class User(AbstractUser):   
+class User(AbstractUser):
     pass
 
 
@@ -71,7 +69,7 @@ class Order(models.Model):
     class Meta:
         ordering = ["-created_at"]
 
-    def __str__(self) -> str:        
+    def __str__(self) -> str:
         return f"<Order: {self.created_at}>"
 
 
@@ -93,7 +91,7 @@ class Ticket(models.Model):
             )
         ]
 
-    def __str__(self) -> str:        
+    def __str__(self) -> str:
         return (
             f"<Ticket: {self.movie_session.movie.title} "
             f"{self.movie_session.show_time} "
