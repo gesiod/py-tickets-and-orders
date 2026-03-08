@@ -11,16 +11,14 @@ def create_user(
     first_name: Optional[str] = None,
     last_name: Optional[str] = None,
 ) -> User:
-    user = User.objects.create_user(username=username, password=password)
-    if email:
-        user.email = email
-    if first_name:
-        user.first_name = first_name
-    if last_name:
-        user.last_name = last_name
-    if any([email, first_name, last_name]):
-        user.save()
-    return user
+    kwargs: dict = {"username": username, "password": password}
+    if email is not None:
+        kwargs["email"] = email
+    if first_name is not None:
+        kwargs["first_name"] = first_name
+    if last_name is not None:
+        kwargs["last_name"] = last_name
+    return User.objects.create_user(**kwargs)
 
 
 def get_user(user_id: int) -> User:
@@ -35,7 +33,7 @@ def update_user(
     first_name: Optional[str] = None,
     last_name: Optional[str] = None,
 ) -> User:
-    user = User.objects.get(id=user_id)
+    user = get_user(user_id)
     if username is not None:
         user.username = username
     if email is not None:
