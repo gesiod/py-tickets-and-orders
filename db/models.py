@@ -11,8 +11,7 @@ class Genre(models.Model):
         return self.name
 
 
-class User(AbstractUser):
-    # custom user model (no additional fields required for now)
+class User(AbstractUser):   
     pass
 
 
@@ -64,7 +63,7 @@ class MovieSession(models.Model):
 
 
 class Order(models.Model):
-    created_at = models.DateTimeField(default=datetime.now)
+    created_at = models.DateTimeField(auto_now_add=True)
     user = models.ForeignKey(
         to="User", on_delete=models.CASCADE, related_name="orders"
     )
@@ -72,8 +71,8 @@ class Order(models.Model):
     class Meta:
         ordering = ["-created_at"]
 
-    def __str__(self) -> str:
-        return str(self.created_at)
+    def __str__(self) -> str:        
+        return f"<Order: {self.created_at}>"
 
 
 class Ticket(models.Model):
@@ -94,12 +93,11 @@ class Ticket(models.Model):
             )
         ]
 
-    def __str__(self) -> str:
-        # representation used in tests does not include wrapping brackets
+    def __str__(self) -> str:        
         return (
-            f"{self.movie_session.movie.title} "
+            f"<Ticket: {self.movie_session.movie.title} "
             f"{self.movie_session.show_time} "
-            f"(row: {self.row}, seat: {self.seat})"
+            f"(row: {self.row}, seat: {self.seat})>"
         )
 
     def clean(self) -> None:
