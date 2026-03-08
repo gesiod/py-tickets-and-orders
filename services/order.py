@@ -1,0 +1,41 @@
+from datetime import datetime
+from typing import List, Dict, Optional
+
+from django.db import transaction
+from django.contrib.auth import get_user_model
+
+from db.models import Order, Ticket
+
+User = get_user_model()
+
+
+def create_order(
+    tickets: List[Dict],
+    username: str,
+    date: Optional[str] = None,
+) -> Order:
+    # ensure atomicity: either all objects created or none
+    with transaction.atomic():
+        user = User.objects.get(username=username)
+        if date:
+            # parse date string
+            created_at = datetime.fromisoformat(date)
+            order = Order.objects.create(user=user, created_at=created_at)
+        else:
+            order = Order.objects.create(user=user)
+        # create tickets
+        for ticket_data in tickets:
+            Ticket.objects.create(
+                movie_session_id=ticket_data["movie_session"],
+                order=order,
+                row=ticket_data["row"],
+                seat=ticket_data["seat"],
+            )
+    return order
+
+
+def get_orders(username: Optional[str] = None):
+    queryset = Order.objects.select_related("user").all()
+    if username:
+        queryset = queryset.filter(user__username=username)
+    return queryset
